@@ -1,10 +1,50 @@
 import * as XLSX from 'xlsx'
 import type { ISiniestrosRepository } from '../repositories/siniestros.repository'
-import type { DashboardFilters, EstadoTramite, Siniestro, TipoEvento } from '../types'
+import type { DashboardFilters, Siniestro, TipoEvento } from '../types'
 import { applyFilters } from '../utils/filters.util'
 
-const TIPOS_EVENTO_VALIDOS: TipoEvento[] = ['Inundación', 'Sequía', 'Granizo', 'Helada', 'Plaga', 'Viento']
-const ESTADOS_VALIDOS: EstadoTramite[] = ['Inspeccionado', 'Pendiente', 'En proceso', 'Rechazado', 'Aprobado']
+const PROV_CANONICAL: Record<string, string> = {
+  'azuay': 'Azuay', 'bolivar': 'Bolívar', 'canar': 'Cañar', 'carchi': 'Carchi',
+  'chimborazo': 'Chimborazo', 'cotopaxi': 'Cotopaxi', 'el oro': 'El Oro',
+  'esmeraldas': 'Esmeraldas', 'galapagos': 'Galápagos', 'guayas': 'Guayas',
+  'imbabura': 'Imbabura', 'loja': 'Loja', 'los rios': 'Los Ríos',
+  'manabi': 'Manabí', 'morona santiago': 'Morona Santiago', 'napo': 'Napo',
+  'orellana': 'Orellana', 'pastaza': 'Pastaza', 'pichincha': 'Pichincha',
+  'santa elena': 'Santa Elena', 'sucumbios': 'Sucumbíos',
+  'tungurahua': 'Tungurahua', 'zamora chinchipe': 'Zamora Chinchipe',
+}
+
+function normKey(s: string): string {
+  return s.trim().toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/\s+/g, ' ')
+}
+
+function toTitleCase(s: string): string {
+  return s.trim().toLowerCase()
+    .replace(/(?:^|\s)\w/g, (c) => c.toUpperCase())
+    .replace(/\s+/g, ' ')
+}
+
+function normalizeProvince(raw: string): string {
+  return PROV_CANONICAL[normKey(raw)] ?? toTitleCase(raw)
+}
+
+function causaToTipoEvento(raw: string): TipoEvento {
+  const first = normKey(raw).split(' - ')[0].trim()
+  if (first.includes('inundacion'))                           return 'Inundación'
+  if (first.includes('exceso') || first.includes('humedad')) return 'Exceso de humedad'
+  if (first.includes('sequia'))                              return 'Sequía'
+  if (first.includes('granizada') || first.includes('granizo')) return 'Granizo'
+  if (first.includes('helada') || first.includes('bajas temp')) return 'Helada'
+  if (first.includes('plagas'))                              return 'Plaga'
+  if (first.includes('enferm'))                              return 'Enfermedad'
+  if (first.includes('vientos'))                             return 'Viento'
+  if (first.includes('desliz'))                              return 'Deslizamiento'
+  if (first.includes('tapon'))                               return 'Taponamiento'
+  if (first.includes('incendio') || first.includes('ceniza')) return 'Incendio'
+  return 'Plaga'
+}
 
 function col(row: Record<string, unknown>, ...keys: string[]): string {
   for (const key of keys) {
@@ -13,14 +53,9 @@ function col(row: Record<string, unknown>, ...keys: string[]): string {
   return ''
 }
 
-function toTipoEvento(raw: unknown): TipoEvento {
-  const val = String(raw ?? '').trim() as TipoEvento
-  return TIPOS_EVENTO_VALIDOS.includes(val) ? val : 'Plaga'
-}
-
-function toEstado(raw: unknown): EstadoTramite {
-  const val = String(raw ?? '').trim() as EstadoTramite
-  return ESTADOS_VALIDOS.includes(val) ? val : 'Pendiente'
+function parseExcelDate(serial: number): string {
+  const d = XLSX.SSF.parse_date_code(serial) as { d: number; m: number; y: number }
+  return `${String(d.d).padStart(2, '0')}/${String(d.m).padStart(2, '0')}/${d.y}`
 }
 
 export class ExcelSiniestrosAdapter implements ISiniestrosRepository {
@@ -43,23 +78,24 @@ export class ExcelSiniestrosAdapter implements ISiniestrosRepository {
   }
 
   private readonly toSiniestro = (row: Record<string, unknown>): Siniestro | null => {
-    const id = col(row, 'ID', 'id', 'Código', 'Codigo')
+    const id = col(row, 'NUMERO TRAMITE2', 'NUMERO TRAMITE', 'ID', 'id', 'Código')
     if (!id) return null
+
+    const rawFecha = row['FECHA OCURRENCIA AVISO SINIESTRO'] ?? row['Fecha'] ?? row['fecha']
+    const fecha = typeof rawFecha === 'number'
+      ? parseExcelDate(rawFecha)
+      : String(rawFecha ?? '').trim()
+
+    const rawCausa = col(row, 'CAUSA SINIESTRO AVISO', 'CAUSA', 'Tipo Evento', 'tipoEvento')
 
     return {
       id,
-      fecha:                col(row, 'Fecha', 'fecha'),
-      provincia:            col(row, 'Provincia', 'provincia'),
-      canton:               col(row, 'Cantón', 'Canton', 'canton'),
-      parroquia:            col(row, 'Parroquia', 'parroquia'),
-      cultivo:              col(row, 'Cultivo', 'cultivo'),
-      productor:            col(row, 'Productor', 'productor'),
-      hectareasAseguradas:  Number(col(row, 'Hectáreas Aseguradas', 'hectareasAseguradas', 'ha_aseguradas') || 0),
-      hectareasAfectadas:   Number(col(row, 'Hectáreas Afectadas', 'hectareasAfectadas', 'ha_afectadas') || 0),
-      porcentajeAfectacion: Number(col(row, '% Afectación', 'porcentajeAfectacion', 'pct_afectacion') || 0),
-      tipoEvento:           toTipoEvento(col(row, 'Tipo Evento', 'tipoEvento', 'tipo_evento')),
-      estado:               toEstado(col(row, 'Estado', 'estado')),
-      tecnico:              col(row, 'Técnico', 'Tecnico', 'tecnico'),
+      fecha,
+      provincia:        normalizeProvince(col(row, 'PROVINCIA', 'Provincia', 'provincia')),
+      canton:           toTitleCase(col(row, 'CANTON', 'Cantón', 'Canton', 'canton')),
+      cultivo:          toTitleCase(col(row, 'CULTIVO', 'Cultivo', 'cultivo')),
+      hectareasAfectadas: Number(col(row, 'HAS AFECTADAS AVISO SINIESTRO', 'Hectáreas Afectadas', 'hectareasAfectadas') || 0),
+      tipoEvento:       causaToTipoEvento(rawCausa),
     }
   }
 }

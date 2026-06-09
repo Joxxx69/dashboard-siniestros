@@ -1,6 +1,6 @@
 'use client'
 
-import { AlertTriangle, CheckCircle, Clock, Leaf, Users, TrendingUp } from 'lucide-react'
+import { AlertTriangle, Leaf, MapPin, Map, Sprout, TrendingUp } from 'lucide-react'
 import { useMetrics } from '../../hooks/use-metrics'
 import { MetricCard } from '../molecules/metric-card'
 
@@ -17,41 +17,41 @@ export function MetricsSection() {
         isLoading={isLoading}
       />
       <MetricCard
-        label="Inspeccionados"
-        value={metrics.inspeccionados}
-        icon={CheckCircle}
-        iconColor="text-green-700"
-        isLoading={isLoading}
-      />
-      <MetricCard
-        label="Pendientes"
-        value={metrics.pendientes}
-        icon={Clock}
-        iconColor="text-yellow-600"
-        isLoading={isLoading}
-      />
-      <MetricCard
         label="Ha. afectadas"
-        value={metrics.hectareasAfectadas}
+        value={metrics.totalHaAfectadas}
         decimals={1}
         icon={Leaf}
         iconColor="text-emerald-700"
         isLoading={isLoading}
       />
       <MetricCard
-        label="Productores"
-        value={metrics.totalProductores}
-        icon={Users}
+        label="Provincias"
+        value={metrics.provinciasAfectadas}
+        icon={Map}
         iconColor="text-blue-700"
         isLoading={isLoading}
       />
       <MetricCard
-        label="% Afectación"
-        value={metrics.porcentajeAfectacion}
-        suffix="%"
+        label="Cantones"
+        value={metrics.cantonesAfectados}
+        icon={MapPin}
+        iconColor="text-indigo-600"
+        isLoading={isLoading}
+      />
+      <MetricCard
+        label="Cultivos"
+        value={metrics.cultivosAfectados}
+        icon={Sprout}
+        iconColor="text-green-700"
+        isLoading={isLoading}
+      />
+      <MetricCard
+        label="Ha. promedio"
+        value={metrics.haPromedioPorSiniestro}
+        suffix=" ha"
         decimals={1}
         icon={TrendingUp}
-        iconColor="text-red-600"
+        iconColor="text-teal-600"
         isLoading={isLoading}
       />
     </div>

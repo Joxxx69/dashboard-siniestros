@@ -13,8 +13,8 @@ import { ByProvinceChart } from '../charts/by-province-chart'
 import { ByEventChart } from '../charts/by-event-chart'
 import { MonthlyTrendChart } from '../charts/monthly-trend-chart'
 import { ByCropChart } from '../charts/by-crop-chart'
-import { ByStatusChart } from '../charts/by-status-chart'
-import { ImpactChart } from '../charts/impact-chart'
+import { ByYearChart } from '../charts/by-status-chart'
+import { HaByEventChart } from '../charts/impact-chart'
 
 const ResponsiveGridLayout = WidthProvider(Responsive)
 
@@ -22,12 +22,12 @@ const BREAKPOINTS = { lg: 1200, md: 996, sm: 640 }
 const COLS = { lg: 12, md: 8, sm: 4 }
 
 const WIDGETS = [
-  { id: 'by-province', title: 'Siniestros por Provincia', chart: <ByProvinceChart /> },
-  { id: 'by-event', title: 'Siniestros por Tipo de Evento', chart: <ByEventChart /> },
-  { id: 'monthly-trend', title: 'Evolución Mensual', chart: <MonthlyTrendChart /> },
-  { id: 'by-crop', title: 'Hectáreas Afectadas por Cultivo', chart: <ByCropChart /> },
-  { id: 'by-status', title: 'Estado del Trámite', chart: <ByStatusChart /> },
-  { id: 'impact', title: '% Afectación por Evento', chart: <ImpactChart /> },
+  { id: 'by-province',  title: 'Siniestros por Provincia',         chart: <ByProvinceChart /> },
+  { id: 'by-event',     title: 'Siniestros por Causa',             chart: <ByEventChart /> },
+  { id: 'monthly-trend',title: 'Evolución Mensual',                chart: <MonthlyTrendChart /> },
+  { id: 'by-crop',      title: 'Ha. Afectadas por Cultivo',        chart: <ByCropChart /> },
+  { id: 'by-year',      title: 'Siniestros por Año',               chart: <ByYearChart /> },
+  { id: 'ha-by-event',  title: 'Ha. Afectadas por Tipo de Evento', chart: <HaByEventChart /> },
 ] as const
 
 export function ChartsGrid() {

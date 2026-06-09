@@ -2,23 +2,19 @@ import { useMemo } from 'react'
 import { useSiniestros } from './use-siniestros'
 import type { DashboardMetrics } from '../types'
 
-function computeMetrics(siniestros: ReturnType<typeof useSiniestros>['data']): DashboardMetrics {
-  const data = siniestros ?? []
-  const inspeccionados = data.filter((s) => s.estado === 'Inspeccionado').length
-  const pendientes = data.filter((s) => s.estado === 'Pendiente').length
-  const hectareasAfectadas = data.reduce((sum, s) => sum + s.hectareasAfectadas, 0)
-  const totalProductores = new Set(data.map((s) => s.productor)).size
-  const totalAseguradas = data.reduce((sum, s) => sum + s.hectareasAseguradas, 0)
-  const porcentajeAfectacion =
-    totalAseguradas > 0 ? Math.round((hectareasAfectadas / totalAseguradas) * 1000) / 10 : 0
+function computeMetrics(data: ReturnType<typeof useSiniestros>['data']): DashboardMetrics {
+  const rows = data ?? []
+  const totalHaAfectadas = rows.reduce((sum, s) => sum + s.hectareasAfectadas, 0)
 
   return {
-    totalSiniestros: data.length,
-    inspeccionados,
-    pendientes,
-    hectareasAfectadas: Math.round(hectareasAfectadas * 10) / 10,
-    totalProductores,
-    porcentajeAfectacion,
+    totalSiniestros:        rows.length,
+    totalHaAfectadas:       Math.round(totalHaAfectadas * 10) / 10,
+    provinciasAfectadas:    new Set(rows.map((s) => s.provincia)).size,
+    cantonesAfectados:      new Set(rows.map((s) => s.canton)).size,
+    cultivosAfectados:      new Set(rows.map((s) => s.cultivo)).size,
+    haPromedioPorSiniestro: rows.length > 0
+      ? Math.round((totalHaAfectadas / rows.length) * 10) / 10
+      : 0,
   }
 }
 

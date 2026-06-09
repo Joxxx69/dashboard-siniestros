@@ -22,22 +22,19 @@ function aggregateHaByKey(data: Siniestro[], key: keyof Siniestro): ChartPoint[]
     return acc
   }, {})
   return Object.entries(totals)
-    .map(([label, value]) => ({ label, value: Math.round(value) }))
+    .map(([label, value]) => ({ label, value: Math.round(value * 10) / 10 }))
     .sort((a, b) => b.value - a.value)
 }
 
-function aggregateAvgPctByKey(data: Siniestro[], key: keyof Siniestro): ChartPoint[] {
-  const groups = data.reduce<Record<string, { total: number; count: number }>>((acc, s) => {
-    const k = String(s[key])
-    if (!acc[k]) acc[k] = { total: 0, count: 0 }
-    acc[k].total += s.porcentajeAfectacion
-    acc[k].count += 1
+function aggregateByYear(data: Siniestro[]): ChartPoint[] {
+  const counts = data.reduce<Record<string, number>>((acc, s) => {
+    const year = s.fecha.split('/')[2] ?? 'Desconocido'
+    acc[year] = (acc[year] ?? 0) + 1
     return acc
   }, {})
-  return Object.entries(groups).map(([label, { total, count }]) => ({
-    label,
-    value: Math.round(total / count),
-  }))
+  return Object.entries(counts)
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => a.label.localeCompare(b.label))
 }
 
 function buildMonthlyTrend(data: Siniestro[]): MonthlyPoint[] {
@@ -46,8 +43,8 @@ function buildMonthlyTrend(data: Siniestro[]): MonthlyPoint[] {
     const monthData = data.filter((s) => s.fecha.split('/')[1] === monthNum)
     return {
       month,
-      total: monthData.length,
-      inspeccionados: monthData.filter((s) => s.estado === 'Inspeccionado').length,
+      total:         monthData.length,
+      haAfectadas:   Math.round(monthData.reduce((sum, s) => sum + s.hectareasAfectadas, 0) * 10) / 10,
     }
   })
 }
@@ -55,12 +52,12 @@ function buildMonthlyTrend(data: Siniestro[]): MonthlyPoint[] {
 export const useChartData = () => {
   const { data: siniestros = [], isLoading } = useSiniestros()
 
-  const byProvince = useMemo(() => aggregateBy(siniestros, 'provincia'), [siniestros])
-  const byEvent = useMemo(() => aggregateBy(siniestros, 'tipoEvento'), [siniestros])
-  const byStatus = useMemo(() => aggregateBy(siniestros, 'estado'), [siniestros])
-  const byCrop = useMemo(() => aggregateHaByKey(siniestros, 'cultivo'), [siniestros])
-  const byImpact = useMemo(() => aggregateAvgPctByKey(siniestros, 'tipoEvento'), [siniestros])
-  const monthlyTrend = useMemo(() => buildMonthlyTrend(siniestros), [siniestros])
+  const byProvince   = useMemo(() => aggregateBy(siniestros, 'provincia'),      [siniestros])
+  const byEvent      = useMemo(() => aggregateBy(siniestros, 'tipoEvento'),     [siniestros])
+  const byYear       = useMemo(() => aggregateByYear(siniestros),               [siniestros])
+  const byCrop       = useMemo(() => aggregateHaByKey(siniestros, 'cultivo'),   [siniestros])
+  const haByEvent    = useMemo(() => aggregateHaByKey(siniestros, 'tipoEvento'), [siniestros])
+  const monthlyTrend = useMemo(() => buildMonthlyTrend(siniestros),             [siniestros])
 
-  return { byProvince, byEvent, byStatus, byCrop, byImpact, monthlyTrend, isLoading }
+  return { byProvince, byEvent, byYear, byCrop, haByEvent, monthlyTrend, isLoading }
 }

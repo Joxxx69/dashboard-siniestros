@@ -7,45 +7,42 @@ export type EstadoTramite =
 
 export type TipoEvento =
   | 'Inundación'
+  | 'Exceso de humedad'
   | 'Sequía'
   | 'Granizo'
   | 'Helada'
   | 'Plaga'
+  | 'Enfermedad'
   | 'Viento'
+  | 'Deslizamiento'
+  | 'Taponamiento'
+  | 'Incendio'
 
 export interface Siniestro {
   readonly id: string
   readonly fecha: string
   readonly provincia: string
   readonly canton: string
-  readonly parroquia: string
   readonly cultivo: string
-  readonly productor: string
-  readonly hectareasAseguradas: number
   readonly hectareasAfectadas: number
-  readonly porcentajeAfectacion: number
   readonly tipoEvento: TipoEvento
-  readonly estado: EstadoTramite
-  readonly tecnico: string
 }
 
 export interface DashboardFilters {
   provincia: string
   canton: string
-  parroquia: string
   cultivo: string
   tipoEvento: string
   anio: string
-  estado: string
 }
 
 export interface DashboardMetrics {
   readonly totalSiniestros: number
-  readonly inspeccionados: number
-  readonly pendientes: number
-  readonly hectareasAfectadas: number
-  readonly totalProductores: number
-  readonly porcentajeAfectacion: number
+  readonly totalHaAfectadas: number
+  readonly provinciasAfectadas: number
+  readonly cantonesAfectados: number
+  readonly cultivosAfectados: number
+  readonly haPromedioPorSiniestro: number
 }
 
 export interface ChartPoint {
@@ -56,5 +53,5 @@ export interface ChartPoint {
 export interface MonthlyPoint {
   readonly month: string
   readonly total: number
-  readonly inspeccionados: number
+  readonly haAfectadas: number
 }

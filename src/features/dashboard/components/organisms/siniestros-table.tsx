@@ -15,8 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useSiniestros } from '../../hooks/use-siniestros'
-import { StatusBadge } from '../atoms/status-badge'
-import type { EstadoTramite, Siniestro } from '../../types'
+import type { Siniestro } from '../../types'
 
 function SortIcon({ sorted }: { sorted: false | 'asc' | 'desc' }) {
   if (sorted === 'asc') return <ChevronUp className="h-3.5 w-3.5" />
@@ -33,44 +32,24 @@ export function SiniestrosTable() {
   const columns = useMemo<ColumnDef<Siniestro>[]>(() => [
     {
       accessorKey: 'id',
-      header: 'ID',
+      header: 'N° Trámite',
       cell: ({ getValue }) => (
         <span className="font-mono text-xs text-muted-foreground">{getValue<string>()}</span>
       ),
     },
-    { accessorKey: 'fecha', header: 'Fecha', size: 90 },
+    { accessorKey: 'fecha',     header: 'Fecha',    size: 100 },
     { accessorKey: 'provincia', header: 'Provincia' },
-    { accessorKey: 'canton', header: 'Cantón' },
-    { accessorKey: 'cultivo', header: 'Cultivo' },
-    { accessorKey: 'productor', header: 'Productor' },
-    {
-      accessorKey: 'hectareasAseguradas',
-      header: 'Ha. Aseg.',
-      cell: ({ getValue }) => getValue<number>().toLocaleString('es-EC'),
-      size: 80,
-    },
+    { accessorKey: 'canton',    header: 'Cantón' },
+    { accessorKey: 'cultivo',   header: 'Cultivo' },
     {
       accessorKey: 'hectareasAfectadas',
-      header: 'Ha. Afect.',
-      cell: ({ getValue }) => getValue<number>().toLocaleString('es-EC'),
-      size: 80,
-    },
-    {
-      accessorKey: 'porcentajeAfectacion',
-      header: '% Afect.',
+      header: 'Ha. Afectadas',
       cell: ({ getValue }) => (
-        <span className="font-medium text-orange-700">{getValue<number>()}%</span>
+        <span className="font-medium">{getValue<number>().toLocaleString('es-EC')}</span>
       ),
-      size: 75,
+      size: 110,
     },
-    { accessorKey: 'tipoEvento', header: 'Evento', size: 95 },
-    {
-      accessorKey: 'estado',
-      header: 'Estado',
-      cell: ({ getValue }) => <StatusBadge status={getValue<EstadoTramite>()} />,
-      size: 115,
-    },
-    { accessorKey: 'tecnico', header: 'Técnico' },
+    { accessorKey: 'tipoEvento', header: 'Causa', size: 150 },
   ], [])
 
   const table = useReactTable({

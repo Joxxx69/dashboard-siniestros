@@ -16,7 +16,6 @@ import {
   PROVINCIAS_DATA,
   CULTIVOS,
   TIPOS_EVENTO,
-  ESTADOS_TRAMITE,
   ANIOS,
 } from '../../constants/filters.constants';
 
@@ -24,7 +23,7 @@ const toOptions = (values: readonly string[]) =>
   values.map((v) => ({ value: v, label: v }));
 
 export function SidebarFilters() {
-  const { filters, setFilter, clearFilters } = useFiltersStore();
+  const { filters, setFilters, clearFilters } = useFiltersStore();
 
   const { watch, reset, setValue } = useForm<FiltersValues>({
     resolver: zodResolver(filtersSchema),
@@ -40,12 +39,14 @@ export function SidebarFilters() {
 
   useEffect(() => {
     const sub = watch((values) => {
-      Object.entries(values).forEach(([key, val]) => {
-        setFilter(key as keyof FiltersValues, val ?? '');
-      });
+      const partial: Partial<FiltersValues> = {}
+      for (const [k, v] of Object.entries(values)) {
+        partial[k as keyof FiltersValues] = v ?? ''
+      }
+      setFilters(partial)
     });
     return () => sub.unsubscribe();
-  }, [watch, setFilter]);
+  }, [watch, setFilters]);
 
   const handleClear = () => {
     reset();
@@ -102,13 +103,6 @@ export function SidebarFilters() {
             value={watch('anio')}
             onChange={(v) => setValue('anio', v)}
             options={toOptions(ANIOS)}
-          />
-
-          <FilterSelect
-            label='Estado del trámite'
-            value={watch('estado')}
-            onChange={(v) => setValue('estado', v)}
-            options={toOptions(ESTADOS_TRAMITE)}
           />
         </div>
       </ScrollArea>
