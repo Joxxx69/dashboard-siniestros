@@ -12,18 +12,14 @@ import {
   type FiltersValues,
 } from '../../schemas/filters.schema';
 import { FilterSelect } from '../molecules/filter-select';
-import {
-  PROVINCIAS_DATA,
-  CULTIVOS,
-  TIPOS_EVENTO,
-  ANIOS,
-} from '../../constants/filters.constants';
+import { useFilterOptions } from '../../hooks/use-filter-options';
 
 const toOptions = (values: readonly string[]) =>
   values.map((v) => ({ value: v, label: v }));
 
 export function SidebarFilters() {
   const { filters, setFilters, clearFilters } = useFiltersStore();
+  const { provinciasData, cultivos, causas, anios, estados, isLoading } = useFilterOptions();
 
   const { watch, reset, setValue } = useForm<FiltersValues>({
     resolver: zodResolver(filtersSchema),
@@ -33,9 +29,9 @@ export function SidebarFilters() {
   const provinciaValue = watch('provincia');
 
   const cantonOptions = useMemo(() => {
-    const match = PROVINCIAS_DATA.find((p) => p.value === provinciaValue);
+    const match = provinciasData.find((p) => p.value === provinciaValue);
     return match ? toOptions(match.cantones) : [];
-  }, [provinciaValue]);
+  }, [provinciaValue, provinciasData]);
 
   useEffect(() => {
     const sub = watch((values) => {
@@ -74,7 +70,8 @@ export function SidebarFilters() {
               setValue('provincia', v);
               setValue('canton', '');
             }}
-            options={PROVINCIAS_DATA}
+            options={provinciasData}
+            disabled={isLoading}
           />
 
           <FilterSelect
@@ -82,27 +79,39 @@ export function SidebarFilters() {
             value={watch('canton')}
             onChange={(v) => setValue('canton', v)}
             options={cantonOptions}
+            disabled={isLoading || !provinciaValue}
           />
 
           <FilterSelect
             label='Cultivo'
             value={watch('cultivo')}
             onChange={(v) => setValue('cultivo', v)}
-            options={toOptions(CULTIVOS)}
+            options={toOptions(cultivos)}
+            disabled={isLoading}
           />
 
           <FilterSelect
             label='Tipo de evento'
             value={watch('tipoEvento')}
             onChange={(v) => setValue('tipoEvento', v)}
-            options={toOptions(TIPOS_EVENTO)}
+            options={toOptions(causas)}
+            disabled={isLoading}
           />
 
           <FilterSelect
             label='Año del siniestro'
             value={watch('anio')}
             onChange={(v) => setValue('anio', v)}
-            options={toOptions(ANIOS)}
+            options={toOptions(anios)}
+            disabled={isLoading}
+          />
+
+          <FilterSelect
+            label='Estado'
+            value={watch('estado')}
+            onChange={(v) => setValue('estado', v)}
+            options={toOptions(estados)}
+            disabled={isLoading}
           />
         </div>
       </ScrollArea>

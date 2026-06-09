@@ -7,6 +7,7 @@ export function applyFilters(data: Siniestro[], filters: DashboardFilters): Sini
     if (filters.cultivo    && s.cultivo    !== filters.cultivo)    return false
     if (filters.tipoEvento && s.tipoEvento !== filters.tipoEvento) return false
     if (filters.anio       && !s.fecha.endsWith(filters.anio))     return false
+    if (filters.estado     && s.estado     !== filters.estado)     return false
     return true
   })
 }

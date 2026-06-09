@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useSiniestros } from '../../hooks/use-siniestros'
+import { StatusBadge } from '../atoms/status-badge'
 import type { Siniestro } from '../../types'
 
 function SortIcon({ sorted }: { sorted: false | 'asc' | 'desc' }) {
@@ -50,6 +51,12 @@ export function SiniestrosTable() {
       size: 110,
     },
     { accessorKey: 'tipoEvento', header: 'Causa', size: 150 },
+    {
+      accessorKey: 'estado',
+      header: 'Estado',
+      cell: ({ getValue }) => <StatusBadge status={getValue<string>()} />,
+      size: 120,
+    },
   ], [])
 
   const table = useReactTable({

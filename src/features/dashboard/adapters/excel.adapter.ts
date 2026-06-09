@@ -95,7 +95,9 @@ export class ExcelSiniestrosAdapter implements ISiniestrosRepository {
       canton:           toTitleCase(col(row, 'CANTON', 'Cantón', 'Canton', 'canton')),
       cultivo:          toTitleCase(col(row, 'CULTIVO', 'Cultivo', 'cultivo')),
       hectareasAfectadas: Number(col(row, 'HAS AFECTADAS AVISO SINIESTRO', 'Hectáreas Afectadas', 'hectareasAfectadas') || 0),
+      valorIndemnizacion: Number(col(row, 'VALOR INDEMNIZACION', 'valorIndemnizacion') || 0),
       tipoEvento:       causaToTipoEvento(rawCausa),
+      estado:           toTitleCase(col(row, 'ESTADO SINIESTRO', 'estado')),
     }
   }
 }

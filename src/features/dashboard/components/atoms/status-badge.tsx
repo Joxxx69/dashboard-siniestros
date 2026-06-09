@@ -2,17 +2,20 @@ import { Badge } from '@/components/ui/badge'
 import type { EstadoTramite } from '../../types'
 
 const VARIANT_MAP: Record<EstadoTramite, 'success' | 'warning' | 'info' | 'danger' | 'muted'> = {
-  Inspeccionado: 'success',
-  Pendiente: 'warning',
-  'En proceso': 'info',
-  Rechazado: 'danger',
-  Aprobado: 'success',
+  Ajustado:     'info',
+  Cerrado:      'muted',
+  Desiste:      'warning',
+  Inspeccionado:'info',
+  Liquidado:    'warning',
+  Negado:       'danger',
+  Pagado:       'success',
 }
 
 interface StatusBadgeProps {
-  readonly status: EstadoTramite
+  readonly status: string
 }
 
 export function StatusBadge({ status }: StatusBadgeProps) {
-  return <Badge variant={VARIANT_MAP[status]}>{status}</Badge>
+  const variant = VARIANT_MAP[status as EstadoTramite] ?? 'muted'
+  return <Badge variant={variant}>{status}</Badge>
 }

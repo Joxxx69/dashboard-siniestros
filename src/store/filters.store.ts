@@ -7,6 +7,7 @@ const DEFAULT_FILTERS: DashboardFilters = {
   cultivo:    '',
   tipoEvento: '',
   anio:       '',
+  estado:     '',
 }
 
 interface FiltersStore {

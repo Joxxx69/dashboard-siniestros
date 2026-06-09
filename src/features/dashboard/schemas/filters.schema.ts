@@ -6,6 +6,7 @@ export const filtersSchema = z.object({
   cultivo:    z.string().default(''),
   tipoEvento: z.string().default(''),
   anio:       z.string().default(''),
+  estado:     z.string().default(''),
 })
 
 export type FiltersValues = z.infer<typeof filtersSchema>

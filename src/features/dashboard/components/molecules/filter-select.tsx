@@ -16,17 +16,18 @@ interface FilterSelectProps {
   readonly onChange: (value: string) => void
   readonly options: readonly Option[]
   readonly placeholder?: string
+  readonly disabled?: boolean
 }
 
-export function FilterSelect({ label, value, onChange, options, placeholder = 'Todos' }: FilterSelectProps) {
+export function FilterSelect({ label, value, onChange, options, placeholder = 'Todos', disabled = false }: FilterSelectProps) {
   const selectValue = value || ALL_VALUE
   const handleChange = (v: string) => onChange(v === ALL_VALUE ? '' : v)
 
   return (
     <div className="flex flex-col gap-1.5">
       <Label className="text-white/75 text-xs font-medium">{label}</Label>
-      <Select value={selectValue} onValueChange={handleChange}>
-        <SelectTrigger className="bg-white/10 border-white/20 text-white text-sm h-9 focus:ring-white/30 [&>span]:text-white/80">
+      <Select value={selectValue} onValueChange={handleChange} disabled={disabled}>
+        <SelectTrigger className="bg-white/10 border-white/20 text-white text-sm h-9 focus:ring-white/30 [&>span]:text-white/80 disabled:opacity-50 disabled:cursor-not-allowed">
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>

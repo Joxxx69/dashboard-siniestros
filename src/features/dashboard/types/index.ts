@@ -1,9 +1,11 @@
 export type EstadoTramite =
+  | 'Ajustado'
+  | 'Cerrado'
+  | 'Desiste'
   | 'Inspeccionado'
-  | 'Pendiente'
-  | 'En proceso'
-  | 'Rechazado'
-  | 'Aprobado'
+  | 'Liquidado'
+  | 'Negado'
+  | 'Pagado'
 
 export type TipoEvento =
   | 'Inundación'
@@ -17,6 +19,7 @@ export type TipoEvento =
   | 'Deslizamiento'
   | 'Taponamiento'
   | 'Incendio'
+  | string
 
 export interface Siniestro {
   readonly id: string
@@ -25,7 +28,9 @@ export interface Siniestro {
   readonly canton: string
   readonly cultivo: string
   readonly hectareasAfectadas: number
-  readonly tipoEvento: TipoEvento
+  readonly valorIndemnizacion: number
+  readonly tipoEvento: string
+  readonly estado: string
 }
 
 export interface DashboardFilters {
@@ -34,6 +39,7 @@ export interface DashboardFilters {
   cultivo: string
   tipoEvento: string
   anio: string
+  estado: string
 }
 
 export interface DashboardMetrics {

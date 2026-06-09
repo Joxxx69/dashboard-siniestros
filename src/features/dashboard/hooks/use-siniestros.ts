@@ -8,7 +8,7 @@ import type { DashboardFilters } from '../types'
 const service = createSiniestrosService()
 
 const EMPTY_FILTERS: DashboardFilters = {
-  provincia: '', canton: '', cultivo: '', tipoEvento: '', anio: '',
+  provincia: '', canton: '', cultivo: '', tipoEvento: '', anio: '', estado: '',
 }
 
 export const useSiniestros = () => {

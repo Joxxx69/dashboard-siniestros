@@ -18,6 +18,13 @@
 .DS_Store
 *.pem
 
+# python scripts
+scripts/venv/
+scripts/.env
+scripts/__pycache__/
+scripts/*.pyc
+scripts/*_errores.csv
+
 # debug
 npm-debug.log*
 yarn-debug.log*
