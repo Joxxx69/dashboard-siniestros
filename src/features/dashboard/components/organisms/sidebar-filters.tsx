@@ -12,14 +12,17 @@ import {
   type FiltersValues,
 } from '../../schemas/filters.schema';
 import { FilterSelect } from '../molecules/filter-select';
-import { useFilterOptions } from '../../hooks/use-filter-options';
+import { useFilterOptions } from '../../hooks/use-filter-options'
+import { useSiniestros } from '../../hooks/use-siniestros';
 
 const toOptions = (values: readonly string[]) =>
   values.map((v) => ({ value: v, label: v }));
 
 export function SidebarFilters() {
   const { filters, setFilters, clearFilters } = useFiltersStore();
-  const { provinciasData, cultivos, causas, anios, estados, isLoading } = useFilterOptions();
+  const { provinciasData, cultivos, causas, anios, estados, isLoading: isLoadingOptions } = useFilterOptions();
+  const { isLoading: isLoadingSiniestros } = useSiniestros();
+  const isLoading = isLoadingOptions || isLoadingSiniestros;
 
   const { watch, reset, setValue } = useForm<FiltersValues>({
     resolver: zodResolver(filtersSchema),
@@ -55,7 +58,7 @@ export function SidebarFilters() {
         <div className='bg-white text-[#014d1d] rounded-xl p-4 text-center font-bold text-sm leading-tight tracking-wide'>
           SINIESTROS
           <br />
-          AGROPROTEGE
+          SEGURO AGRICOLA SUBVENCIONADO
         </div>
       </div>
 
@@ -119,8 +122,9 @@ export function SidebarFilters() {
       <div className='p-5 border-t border-white/10'>
         <Button
           variant='outline'
-          className='w-full text-white border-white/40 bg-transparent hover:bg-white hover:text-[#014d1d] gap-2'
+          className='w-full text-white border-white/40 bg-transparent hover:bg-white hover:text-[#014d1d] gap-2 disabled:opacity-50 disabled:cursor-not-allowed'
           onClick={handleClear}
+          disabled={isLoading}
         >
           <RotateCcw className='h-4 w-4' />
           Limpiar filtros

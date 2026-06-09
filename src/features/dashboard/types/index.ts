@@ -1,7 +1,6 @@
 export type EstadoTramite =
   | 'Ajustado'
   | 'Cerrado'
-  | 'Desiste'
   | 'Inspeccionado'
   | 'Liquidado'
   | 'Negado'

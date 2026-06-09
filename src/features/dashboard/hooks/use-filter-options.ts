@@ -53,7 +53,7 @@ async function fetchFilterOptions(): Promise<FilterOptions> {
   ].sort()
 
   const anios = aniosRaw.map((r) => String(r.anio_siniestro))
-  const estados = estadosRaw.map((e) => e.nombre)
+  const estados = estadosRaw.map((e) => e.nombre).filter((e) => e !== 'Desiste')
 
   return { provinciasData, cultivos, causas, anios, estados }
 }

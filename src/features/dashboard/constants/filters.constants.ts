@@ -9,7 +9,6 @@ export const CHART_COLORS = [
 export const ESTADO_COLORS: Record<EstadoTramite, string> = {
   Ajustado:     '#3b82f6',
   Cerrado:      '#6b7280',
-  Desiste:      '#f59e0b',
   Inspeccionado:'#06b6d4',
   Liquidado:    '#f97316',
   Negado:       '#ef4444',

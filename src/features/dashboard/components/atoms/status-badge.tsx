@@ -4,7 +4,6 @@ import type { EstadoTramite } from '../../types'
 const VARIANT_MAP: Record<EstadoTramite, 'success' | 'warning' | 'info' | 'danger' | 'muted'> = {
   Ajustado:     'info',
   Cerrado:      'muted',
-  Desiste:      'warning',
   Inspeccionado:'info',
   Liquidado:    'warning',
   Negado:       'danger',

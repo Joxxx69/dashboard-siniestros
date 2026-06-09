@@ -30,6 +30,10 @@ type DbRow = {
   estados_siniestro: { nombre: string } | null
 }
 
+function normalizeEstado(estado: string): string {
+  return estado === 'Desiste' ? 'Cerrado' : estado
+}
+
 function isoToLocal(iso: string): string {
   const [y, m, d] = iso.split('-')
   return `${d}/${m}/${y}`
@@ -45,7 +49,7 @@ function toSiniestro(row: DbRow): Siniestro {
     hectareasAfectadas:  row.has_afectadas,
     valorIndemnizacion:  row.valor_indemnizacion ?? 0,
     tipoEvento:          normalizeCausa(row.causas_siniestro?.descripcion ?? ''),
-    estado:              row.estados_siniestro?.nombre ?? '',
+    estado:              normalizeEstado(row.estados_siniestro?.nombre ?? ''),
   }
 }
 

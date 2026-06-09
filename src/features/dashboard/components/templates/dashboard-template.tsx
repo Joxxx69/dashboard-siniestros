@@ -14,10 +14,10 @@ export function DashboardTemplate() {
         <div className="p-6 space-y-6">
           <header>
             <h1 className="text-2xl font-bold text-gray-900">
-              Dashboard de Seguimiento de Siniestros Agropecuarios
+              Dashboard de Seguimiento de Siniestros Agricolas
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Monitorea el comportamiento de los siniestros agropecuarios en tiempo real.
+              Monitorea el comportamiento de los siniestros agricolas en tiempo real.
             </p>
           </header>
 

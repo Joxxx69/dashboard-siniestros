@@ -1,6 +1,6 @@
 'use client'
 
-import { AlertTriangle, Leaf, MapPin, Map, Sprout, TrendingUp } from 'lucide-react'
+import { AlertTriangle, Leaf, MapPin, Map, Sprout, TrendingUp, CloudLightning } from 'lucide-react'
 import { useMetrics } from '../../hooks/use-metrics'
 import { MetricCard } from '../molecules/metric-card'
 
@@ -12,7 +12,7 @@ export function MetricsSection() {
       <MetricCard
         label="Total siniestros"
         value={metrics.totalSiniestros}
-        icon={AlertTriangle}
+        icon={CloudLightning}
         iconColor="text-orange-600"
         isLoading={isLoading}
       />
@@ -46,7 +46,7 @@ export function MetricsSection() {
         isLoading={isLoading}
       />
       <MetricCard
-        label="Ha. promedio"
+        label="Ha. promedio afectada"
         value={metrics.haPromedioPorSiniestro}
         suffix=" ha"
         decimals={1}

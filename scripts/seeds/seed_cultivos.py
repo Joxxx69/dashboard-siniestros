@@ -9,6 +9,7 @@ Uso:
 
 import os
 import sys
+import unicodedata
 from dotenv import load_dotenv
 from supabase import create_client
 
@@ -17,110 +18,66 @@ load_dotenv()
 SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_KEY = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
 
-# ── Valores raw del Excel → normalizados ─────────────────────────
-# Reglas aplicadas:
-#   - Title Case
-#   - Tildes y ñ correctas
-#   - Separador compuesto uniformizado a " + "
-#   - "Arverja" corregido a "Arveja"
-#   - "de/de Árbol" en minúsculas (preposición)
+def strip_accents(text: str) -> str:
+    return " ".join(
+        "".join(c for c in unicodedata.normalize("NFD", w) if unicodedata.category(c) != "Mn")
+        for w in str(text).strip().lower().split()
+    )
 
-NORMALIZATION_MAP: dict[str, str] = {
-    "AGUACATE":                        "Aguacate",
-    "ALGODON URPIMA":                  "Algodón Urpima",
-    "ARROZ":                           "Arroz",
-    "ARVEJA":                          "Arveja",
-    "BANANO":                          "Banano",
-    "CACAO":                           "Cacao",
-    "CACAO+PLATANO":                   "Cacao + Plátano",
-    "CACAO - PLATANO":                 "Cacao + Plátano",
-    "CAFE":                            "Café",
-    "Café":                            "Café",
-    "CANA DE AZUCAR FORMACION":        "Caña de Azúcar Formación",
-    "CAÑA DE AZÚCAR FORMACIÓN":        "Caña de Azúcar Formación",
-    "CEBADA":                          "Cebada",
-    "CEBOLLA COLORADA":                "Cebolla Colorada",
-    "Cebolla colorada":                "Cebolla Colorada",
-    "CEBOLLA PERLA":                   "Cebolla Perla",
-    "FREJOL":                          "Fréjol",
-    "FRÉJOL":                          "Fréjol",
-    "HABA":                            "Haba",
-    "MAIZ - FREJOL":                   "Maíz - Fréjol",
-    "Maíz - Frejol":                   "Maíz - Fréjol",
-    "Maíz - Arverja":                  "Maíz - Arveja",
-    "MAIZ DURO":                       "Maíz Duro",
-    "MAÍZ DURO":                       "Maíz Duro",
-    "MAIZ SUAVE":                      "Maíz Suave",
-    "MAIZ SUAVE + ARVEJA":             "Maíz Suave + Arveja",
-    "MAIZ SUAVE + FREJOL":             "Maíz Suave + Fréjol",
-    "MÁIZ SUAVE+FREJOL":               "Maíz Suave + Fréjol",
-    "MAIZ SUAVE + HABA":               "Maíz Suave + Haba",
-    "MAÍZ SUAVE+HABA":                 "Maíz Suave + Haba",
-    "MANI":                            "Maní",
-    "PALMA AFRICANA":                  "Palma Africana",
-    "Palma Africana":                  "Palma Africana",
-    "PAPA":                            "Papa",
-    "PIMIENTO":                        "Pimiento",
-    "Pimiento":                        "Pimiento",
-    "PILA":                            "Pila",
-    "PINA":                            "Piña",
-    "PIÑA":                            "Piña",
-    "PITAHAYA":                        "Pitahaya",
-    "PLATANO":                         "Plátano",
-    "PLÁTANO":                         "Plátano",
-    "QUINUA":                          "Quinua",
-    "SOYA":                            "Soya",
-    "TOMATE DE ARBOL":                 "Tomate de Árbol",
-    "TOMATE HORTICOLA CAMPO ABIERTO":  "Tomate Hortícola Campo Abierto",
-    "TOMATE HORTÍCOLA CAMPO ABIERTO":  "Tomate Hortícola Campo Abierto",
-    "TRIGO":                           "Trigo",
-    "BROCOLI":                         "Brócoli",
+
+def cultivo_key(text: str) -> str:
+    """'Maíz - Fréjol' → 'maiz frejol' — sin tildes, sin signos, lowercase."""
+    no_accents = strip_accents(text)
+    alnum_only = "".join(c if c.isalnum() else " " for c in no_accents)
+    return " ".join(alnum_only.split())
+
+
+CULTIVO_CANONICAL: dict[str, str] = {
+    "aguacate":                       "Aguacate",
+    "algodon urpima":                 "Algodón Urpima",
+    "arroz":                          "Arroz",
+    "arveja":                         "Arveja",
+    "banano":                         "Banano",
+    "cacao":                          "Cacao",
+    "cacao platano":                  "Cacao + Plátano",
+    "cafe":                           "Café",
+    "cana de azucar formacion":       "Caña de Azúcar Formación",
+    "cebada":                         "Cebada",
+    "cebolla colorada":               "Cebolla Colorada",
+    "cebolla perla":                  "Cebolla Perla",
+    "frejol":                         "Fréjol",
+    "haba":                           "Haba",
+    "maiz arveja":                    "Maíz Suave + Arveja",
+    "maiz arverja":                   "Maíz Suave + Arveja",
+    "maiz frejol":                    "Maíz Suave + Fréjol",
+    "maiz duro":                      "Maíz Duro",
+    "maiz suave":                     "Maíz Suave",
+    "maiz suave arveja":              "Maíz Suave + Arveja",
+    "maiz suave frejol":              "Maíz Suave + Fréjol",
+    "maiz suave haba":                "Maíz Suave + Haba",
+    "mani":                           "Maní",
+    "palma africana":                 "Palma Africana",
+    "papa":                           "Papa",
+    "pimiento":                       "Pimiento",
+    "pina":                           "Piña",
+    "pitahaya":                       "Pitahaya",
+    "platano":                        "Plátano",
+    "quinua":                         "Quinua",
+    "soya":                           "Soya",
+    "tomate de arbol":                "Tomate de Árbol",
+    "tomate horticola campo abierto": "Tomate Hortícola Campo Abierto",
+    "trigo":                          "Trigo",
+    "brocoli":                        "Brócoli",
 }
 
-# ── Lista fuente (raw, tal cual en el Excel) ──────────────────────
-CULTIVOS_RAW = [
-    "AGUACATE",
-    "ALGODON URPIMA",
-    "ARROZ",
-    "ARVEJA",
-    "BANANO",
-    "CACAO",
-    "CACAO+PLATANO",
-    "Café",
-    "CAÑA DE AZÚCAR FORMACIÓN",
-    "CEBADA",
-    "Cebolla colorada",
-    "CEBOLLA PERLA",
-    "FRÉJOL",
-    "HABA",
-    "Maíz - Arverja",
-    "Maíz - Frejol",
-    "MAÍZ DURO",
-    "MAIZ SUAVE",
-    "MAIZ SUAVE + ARVEJA",
-    "MÁIZ SUAVE+FREJOL",
-    "MAÍZ SUAVE+HABA",
-    "MANI",
-    "Palma Africana",
-    "PAPA",
-    "Pimiento",
-    "PILA",
-    "PIÑA",
-    "PITAHAYA",
-    "PLÁTANO",
-    "QUINUA",
-    "SOYA",
-    "TOMATE HORTÍCOLA CAMPO ABIERTO",
-    "TRIGO",
-    "TOMATE DE ARBOL",
-    "BROCOLI",
-]
+# ── Lista fuente (valores canónicos del mapa) ─────────────────────
+CULTIVOS_RAW = list(CULTIVO_CANONICAL.values())
 
 
 # ── Normalización ────────────────────────────────────────────────
 
 def normalize(raw: str) -> str:
-    return NORMALIZATION_MAP.get(raw, " ".join(raw.strip().title().split()))
+    return CULTIVO_CANONICAL.get(cultivo_key(raw), " ".join(raw.strip().title().split()))
 
 
 def build_unique(raw_list: list[str]) -> list[str]:
