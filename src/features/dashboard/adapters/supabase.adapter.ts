@@ -58,6 +58,7 @@ export class SupabaseSiniestrosAdapter implements ISiniestrosRepository {
       const { data, error } = await supabase
         .from('siniestros')
         .select(SELECT)
+        .order('id')
         .range(from, from + PAGE_SIZE - 1)
 
       if (error) throw new Error(`Supabase error: ${error.message}`)
