@@ -46,7 +46,7 @@ export function MetricsSection() {
         isLoading={isLoading}
       />
       <MetricCard
-        label="Ha. promedio afectada"
+        label="Ha. promedio afectadas"
         value={metrics.haPromedioPorSiniestro}
         suffix=" ha"
         decimals={1}
